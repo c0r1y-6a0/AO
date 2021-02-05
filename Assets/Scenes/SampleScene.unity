@@ -661,9 +661,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mat: {fileID: 2100000, guid: 3936f3a47e2a61740975dd7514e97f32, type: 2}
   NoiseDebug: {fileID: 1256298820}
-  KernelSize: 64
+  KernelSize: 4
   Bias: 0.209
-  Radius: 0.511
+  Radius: 1
   NoiseSize: 1024
   Mode: 0
 --- !u!1 &1040405364

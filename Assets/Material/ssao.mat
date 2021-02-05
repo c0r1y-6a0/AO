@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: ssao
   m_Shader: {fileID: 4800000, guid: 0225160cb0f674144ba822614df44b84, type: 3}
-  m_ShaderKeywords: _RAW_IMG
+  m_ShaderKeywords: _WITH_AO
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0

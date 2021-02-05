@@ -16,6 +16,8 @@
             #pragma fragment frag
             #pragma target 4.0
 
+            #pragma multi_compile _RAW_IMG _ONLY_AO _WITH_AO
+
             #include "UnityCG.cginc"
 
             struct appdata
@@ -118,7 +120,13 @@
 
                 occulision = 1.0 - occulision / kernel_size;
 
+#if _RAW_IMG
+                return col;
+#elif _ONLY_AO
+                return occulision;
+#elif _WITH_AO
                 return col * occulision;
+#endif
             }
             ENDCG
         }

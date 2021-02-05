@@ -4,6 +4,12 @@ using UnityEngine;
 
 namespace GC
 {
+    public enum ColorMode
+    {
+        RAW_IMG = 0,
+        ONLY_AO,
+        WITH_AO,
+    }
     public class AO : MonoBehaviour
     {
         public Material mat;
@@ -19,6 +25,9 @@ namespace GC
 
         [Header("Random Noise")]
         public int NoiseSize = 4;
+
+        [Header("Debug")]
+        public ColorMode Mode = ColorMode.RAW_IMG;
 
 
         // Start is called before the first frame update
@@ -71,6 +80,24 @@ namespace GC
         {
             mat.SetFloat("bias", Bias);
             mat.SetFloat("radius", Radius);
+            switch(Mode)
+            {
+                case ColorMode.ONLY_AO:
+                    mat.EnableKeyword("_ONLY_AO");
+                    mat.DisableKeyword("_RAW_IMG");
+                    mat.DisableKeyword("_WITH_AO");
+                    break;
+                case ColorMode.RAW_IMG:
+                    mat.EnableKeyword("_RAW_IMG");
+                    mat.DisableKeyword("_ONLY_AO");
+                    mat.DisableKeyword("_WITH_AO");
+                    break;
+                case ColorMode.WITH_AO:
+                    mat.EnableKeyword("_WITH_AO");
+                    mat.DisableKeyword("_ONLY_AO");
+                    mat.DisableKeyword("_RAW_IMG");
+                    break;
+            }
         }
 
         // Update is called once per frame

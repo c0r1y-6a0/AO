@@ -37,7 +37,6 @@
 			int kernel_size;
 			float4 kernel[KERNEL_MAX_SIZE];
 			float radius;
-			float4x4 invproj;
 			float4x4 projection;
 
 			sampler2D _NoiseTex;
@@ -59,16 +58,23 @@
 				DecodeDepthNormal(depthnormal, depth, normal);
 			}
 
+			float4x4 invproj;
+			float3 ReconstructViewPos(float2 uv, float linear01Depth)
+			{
+				float2 NDC = uv * 2 - 1;
+				float3 clipVec = float3(NDC.x, NDC.y, 1.0) * _ProjectionParams.z;
+				float3 viewVec = mul(invproj, clipVec.xyzz).xyz;
+				return viewVec * linear01Depth;
+			}
+
 			fixed4 frag(v2f i) : SV_Target
 			{
 				float3 normal;
 				float depth;
 				GetDepthNormal(i.uv, depth, normal);
 
-				float2 NDC = i.uv * 2 - 1;
-				float3 clipVec = float3(NDC.x, NDC.y, 1.0) * _ProjectionParams.z;
-				float3 viewVec = mul(invproj, clipVec.xyzz).xyz;
-				float3 viewPos = viewVec * depth;
+				float3 viewPos = ReconstructViewPos(i.uv, depth);
+
 				float viewZ = depth * -_ProjectionParams.z;
 
 				/*

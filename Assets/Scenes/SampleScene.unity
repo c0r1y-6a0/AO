@@ -309,6 +309,72 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+--- !u!21 &513201552
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: GC/SSAO
+  m_Shader: {fileID: 4800000, guid: 0225160cb0f674144ba822614df44b84, type: 3}
+  m_ShaderKeywords: _WITH_AO
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats: []
+    m_Colors: []
+--- !u!28 &584412432
+Texture2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  serializedVersion: 2
+  m_Width: 4
+  m_Height: 4
+  m_CompleteImageSize: 64
+  m_TextureFormat: 5
+  m_MipCount: 1
+  m_IsReadable: 1
+  m_IgnoreMasterTextureLimit: 0
+  m_StreamingMipmaps: 0
+  m_StreamingMipmapsPriority: 0
+  m_AlphaIsTransparency: 0
+  m_ImageCount: 1
+  m_TextureDimension: 2
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 0
+    m_WrapV: 0
+    m_WrapW: 0
+  m_LightmapFormat: 0
+  m_ColorSpace: 0
+  image data: 64
+  _typelessdata: ff26fe5dffdffc65ff3d6bb8fffa367effcd1da4ffb9eedbfff26bbcff387260ff774354ffcd61f0ff2b46f6ff19e590ff5d2184ff3768a4ff9cfa59ff6f6f9b
+  m_StreamData:
+    offset: 0
+    size: 0
+    path: 
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -659,13 +725,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1e45b7238502c846af482c628064347, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mat: {fileID: 2100000, guid: 3936f3a47e2a61740975dd7514e97f32, type: 2}
-  NoiseDebug: {fileID: 1256298820}
-  KernelSize: 4
+  mat: {fileID: 513201552}
+  NoiseDebug: {fileID: 584412432}
+  KernelSize: 8
   Bias: 0.209
   Radius: 1
-  NoiseSize: 1024
-  Mode: 0
+  NoiseSize: 4
+  Mode: 2
 --- !u!1 &1040405364
 GameObject:
   m_ObjectHideFlags: 0
@@ -760,44 +826,3 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!28 &1256298820
-Texture2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  serializedVersion: 2
-  m_Width: 8
-  m_Height: 8
-  m_CompleteImageSize: 256
-  m_TextureFormat: 5
-  m_MipCount: 1
-  m_IsReadable: 1
-  m_IgnoreMasterTextureLimit: 0
-  m_StreamingMipmaps: 0
-  m_StreamingMipmapsPriority: 0
-  m_AlphaIsTransparency: 0
-  m_ImageCount: 1
-  m_TextureDimension: 2
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 0
-    m_WrapV: 0
-    m_WrapW: 0
-  m_LightmapFormat: 0
-  m_ColorSpace: 0
-  image data: 256
-  _typelessdata: ff471e6dfff11a8affed498effa0641aff831a19ffbde2a9ffd9869cffcf1ed6ff379f75ffb1a051fffe69a2ffe04435ff1e3cb7ffd77c93fff66327ff28199eff3b89c1ff9b1fcfff8ae210ff8cd6bdff5646c1ffd78c13fffa0543ff569b4eff2194f1ff580b23ff9a11fcff9f873dff480e71ff5ce087ff420af6ff0765a3ff00ee2dff7bc394ff80ad40ff23db26ffe1d808ff11d897ff9ea9beffaf6e1dff423bc5ff0496b8ff67ebf8ff54e3fbffc4614cffade179ffba161cff6391a4ffed24e3ff0d1e8aff5859d7ff0ba4ecff75bd23ff072087ff848e5dffa40c37fffabed2ffa1eb77ff2c8fa7fff69e24ffc87344ff490b92ff8004b5fffaba32
-  m_StreamData:
-    offset: 0
-    size: 0
-    path: 

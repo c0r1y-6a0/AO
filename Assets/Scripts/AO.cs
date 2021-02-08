@@ -39,6 +39,13 @@ namespace GC
 
         void InitKernel()
         {
+
+            UpdateMat();
+        }
+
+        public void UpdateMat()
+        {
+            mat = new Material(Shader.Find("GC/SSAO"));
             mat.SetInt("kernel_size", KernelSize);
             Random.InitState((int)System.DateTimeOffset.Now.ToUnixTimeSeconds());
 
@@ -73,14 +80,9 @@ namespace GC
             NoiseDebug = tex;
             mat.SetFloat("noiseSize", NoiseSize);
 
-            UpdateMat();
-        }
-
-        public void UpdateMat()
-        {
             mat.SetFloat("bias", Bias);
             mat.SetFloat("radius", Radius);
-            switch(Mode)
+            switch (Mode)
             {
                 case ColorMode.ONLY_AO:
                     mat.EnableKeyword("_ONLY_AO");
@@ -110,7 +112,11 @@ namespace GC
             mat.SetMatrix("invproj", Camera.main.projectionMatrix.inverse);
             mat.SetMatrix("projection", Camera.main.projectionMatrix);
 
-            Graphics.Blit(source, destination, mat);
+            RenderTexture rt = RenderTexture.GetTemporary(Screen.width / 2, Screen.height / 2);
+            Graphics.Blit(source, rt, mat, 0);
+            mat.SetTexture("_AOTex", rt);
+            Graphics.Blit(source, destination, mat, 1);
+            RenderTexture.ReleaseTemporary(rt);
         }
     }
 }

@@ -1196,31 +1196,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 79087346}
   m_PrefabAsset: {fileID: 0}
---- !u!21 &81827040
-Material:
-  serializedVersion: 6
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: GC/SSAO
-  m_Shader: {fileID: 4800000, guid: 0225160cb0f674144ba822614df44b84, type: 3}
-  m_ShaderKeywords: _ONLY_AO
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats: []
-    m_Colors: []
 --- !u!1001 &90905859
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7058,13 +7033,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1e45b7238502c846af482c628064347, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mat: {fileID: 81827040}
+  AOMode: 1
   NoiseDebug: {fileID: 1859926241}
   KernelSize: 64
   Bias: 0.081
   Radius: 0.402
   NoiseSize: 4
-  Mode: 1
+  MarchingCount: 32
+  TexMode: 1
 --- !u!20 &580183108
 Camera:
   m_ObjectHideFlags: 0

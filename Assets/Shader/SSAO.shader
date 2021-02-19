@@ -5,7 +5,7 @@
 		_MainTex("Texture", 2D) = "white" {}
 	}
 
-		SubShader
+	SubShader
 	{
 		Tags { "RenderType" = "Opaque" }
 
@@ -93,10 +93,10 @@
 				float3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
 				float3 bitangent = cross(normal, tangent);
 				float3x3 tbn = float3x3(
-					tangent.x, bitangent.x, normal.x,
-					tangent.y, bitangent.y, normal.y,
-					tangent.z, bitangent.z, normal.z
-					);
+				tangent.x, bitangent.x, normal.x,
+				tangent.y, bitangent.y, normal.y,
+				tangent.z, bitangent.z, normal.z
+				);
 
 
 				float occulision = 0;
@@ -161,28 +161,28 @@
 			fixed4 frag(v2f i) : SV_Target
 			{
 				float ao = 0.0;
-			for (int x = -2; x < 2; x++)
-			{
-				for (int y = -2; y < 2; y++)
+				for (int x = -2; x < 2; x++)
 				{
-					ao += tex2D(_AOTex, i.uv + float2(x, y) * _AOTex_TexelSize.xy).r;
+					for (int y = -2; y < 2; y++)
+					{
+						ao += tex2D(_AOTex, i.uv + float2(x, y) * _AOTex_TexelSize.xy).r;
+					}
 				}
-			}
-			ao = ao / 16.0;
-			ao = tex2D(_AOTex, i.uv);
+				ao = ao / 16.0;
+				ao = tex2D(_AOTex, i.uv);
 
 
-			fixed4 col = tex2D(_MainTex, i.uv);
+				fixed4 col = tex2D(_MainTex, i.uv);
 
-#if _RAW_IMG
-				return col;
-#elif _ONLY_AO
-				return ao;
-#elif _WITH_AO
-				return col * ao;
-#endif
+				#if _RAW_IMG
+					return col;
+				#elif _ONLY_AO
+					return ao;
+				#elif _WITH_AO
+					return col * ao;
+				#endif
 			}
 			ENDCG
-	}
+		}
 	}
 }

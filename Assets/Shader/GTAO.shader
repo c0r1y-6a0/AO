@@ -11,8 +11,8 @@
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-			#pragma target 4.0
-			#pragma multi_compile _RAW_IMG _ONLY_AO _WITH_AO
+            #pragma target 4.0
+            #pragma multi_compile _RAW_IMG _ONLY_AO _WITH_AO
 
             #include "UnityCG.cginc"
 
@@ -30,10 +30,9 @@
 
             sampler2D _MainTex;
             sampler2D _CameraDepthNormalsTexture;
+            float4 _CameraDepthNormalsTexture_TexelSize;
 
-            float _marchingRadius;
             int _marchingCount;
-            float4 _marchingDir;
 
             v2f vert (appdata v)
             {
@@ -49,35 +48,51 @@
                 DecodeDepthNormal(depthnormal, depth, normal);
             }
 
-			float4x4 invproj;
-			float3 ReconstructViewPos(float2 uv, float linear01Depth)
-			{
-				float2 NDC = uv * 2 - 1;
-				float3 clipVec = float3(NDC.x, NDC.y, 1.0) * _ProjectionParams.z;
-				float3 viewVec = mul(invproj, clipVec.xyzz).xyz;
-				return viewVec * linear01Depth;
-			}
+            float4x4 invproj;
+            float3 ReconstructViewPos(float2 uv, float linear01Depth)
+            {
+                float2 NDC = uv * 2 - 1;
+                float3 clipVec = float3(NDC.x, NDC.y, 1.0) * _ProjectionParams.z;
+                float3 viewVec = mul(invproj, clipVec.xyzz).xyz;
+                return viewVec * linear01Depth;
+            }
 
-            float GetH(float3 fragViewPos, float2 uv, float2 marchingDir)
+            float GetH(float3 fragViewPos, float fragDepth, float2 uv, float2 marchingDir)
             {
                 float depth;
                 float3 normal;
-                float stepSize = _marchingRadius / _marchingCount;
-                float nearest = 0;
-                float2 nearestuv = float2(0, 0);
+                float nearest = fragDepth;
+                float2 nearestuv = uv;
                 for(int i = 0 ; i < _marchingCount ; i++)
                 {
-                    float2 newuv = uv + i * stepSize * marchingDir;
+                    float2 newuv = uv + i * marchingDir * _CameraDepthNormalsTexture_TexelSize;
                     GetDepthNormal(newuv, depth, normal);
                     float w = depth > nearest ? 1 : 0;
                     nearest = lerp(nearest, depth, w);
                     nearestuv = lerp(nearestuv, newuv, w);
                 }
 
-                return nearest;
                 float nearestPos = ReconstructViewPos(nearestuv, nearest);
                 float3 dir = normalize(nearestPos - fragViewPos);
-                return acos(abs(dir.z));
+                return abs(nearest - fragDepth) < 0.00001 ? UNITY_PI/2 : acos(abs(dir.z));
+            }
+
+            float GetAOInner(float h, float n)
+            {
+                return -cos(2 * h - n) + cos(n) + 2 * h * sin(n);
+            }
+
+            float GetAO(float h1, float h2, float n)
+            {
+                //return 2 - cos(h1) - cos(h2);
+                float v1 = GetAOInner(h1, n);
+                float v2 = GetAOInner(h2, n);
+                return (v1 + v2) * 0.25;
+            }
+
+            float2 rand(float2 value)
+            {
+                return frac(sin(value) * 15213.331);
             }
 
             fixed4 frag (v2f i) : SV_Target
@@ -89,16 +104,30 @@
                 GetDepthNormal(i.uv, depth, normal);
                 float3 viewPos = ReconstructViewPos(i.uv, depth);
 
-                float h1 = GetH(viewPos, i.uv, _marchingDir.xy);
-                float h2 = GetH(viewPos, i.uv, -_marchingDir.xy);
+                float totalD = 0;
+                float count = 64.0;
+                float n = acos(normal.z);
+                for(int j = 0 ; j < count; j++)
+                {
+                    float radian = 2 * UNITY_PI * (j / count);
+                    float2 dir = float2(cos(radian) , sin(radian));
+                    //dir += rand(i.uv);
+                    //dir = rand2dTo2d(dir + i.uv *50);
+                    dir = normalize(dir);
+                    float h1 = GetH(viewPos, depth, i.uv, dir);
+                    float h2 = GetH(viewPos, depth, i.uv, -dir);
+                    float ao = GetAO(h1, h2, n);
+                    totalD += ao;
+                }
+                totalD /=  count;
 
-#if _RAW_IMG
-				return col;
-#elif _ONLY_AO
-				return (h1 - depth) * 100;
-#elif _WITH_AO
-				return col * h1;
-#endif
+                #ifdef _RAW_IMG
+                    return col;
+                #elif _ONLY_AO
+                    return totalD;
+                #elif _WITH_AO
+                    return col * totalD;
+                #endif
             }
             ENDCG
         }

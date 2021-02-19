@@ -32,9 +32,7 @@ namespace GC
         public int NoiseSize = 4;
 
         [Header("GTAO")]
-        public float MarchingRadius = 0.02f;
         public int MarchingCount = 20;
-        public Vector2 MarchingDir = new Vector2(1f, 1f);
 
         [Header("Debug")]
         public OutputMode TexMode = OutputMode.RAW_IMG;
@@ -100,9 +98,7 @@ namespace GC
             else if (AOMode == AOMODE.GTAO)
             {
                 mat = new Material(Shader.Find("GC/GTAO"));
-                mat.SetFloat("_marchingRadius", MarchingRadius);
                 mat.SetInt("_marchingCount", MarchingCount);
-                mat.SetVector("_marchingDir", MarchingDir);
             }
 
             switch (TexMode)

@@ -33,6 +33,8 @@ namespace GC
 
         [Header("GTAO")]
         public int MarchingCount = 20;
+        public int SliceCount = 1;
+        public float GTAO_Radius = 1.0f;
 
         [Header("Debug")]
         public OutputMode TexMode = OutputMode.RAW_IMG;
@@ -99,6 +101,8 @@ namespace GC
             {
                 mat = new Material(Shader.Find("GC/GTAO"));
                 mat.SetInt("_marchingCount", MarchingCount);
+                mat.SetInt("_scliceCount", SliceCount);
+                mat.SetFloat("_radius", GTAO_Radius);
             }
 
             switch (TexMode)

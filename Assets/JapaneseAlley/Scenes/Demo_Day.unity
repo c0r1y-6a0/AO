@@ -6997,7 +6997,7 @@ GameObject:
   - component: {fileID: 580183108}
   - component: {fileID: 580183106}
   - component: {fileID: 580183105}
-  - component: {fileID: 580183107}
+  - component: {fileID: 580183110}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -7021,26 +7021,6 @@ Behaviour:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 580183104}
   m_Enabled: 1
---- !u!114 &580183107
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 580183104}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1e45b7238502c846af482c628064347, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  AOMode: 1
-  NoiseDebug: {fileID: 1859926241}
-  KernelSize: 64
-  Bias: 0.081
-  Radius: 0.402
-  NoiseSize: 4
-  MarchingCount: 32
-  TexMode: 1
 --- !u!20 &580183108
 Camera:
   m_ObjectHideFlags: 0
@@ -7098,6 +7078,30 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 21.429, y: -62.660004, z: -2.838}
+--- !u!114 &580183110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 580183104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5720f3e4091d5649966a31a0c9adc84, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RenderSize: 1
+  GTSO_LUT: {fileID: 8600000, guid: 3259ff3bea45efe4796e750ed7cb244a, type: 2}
+  DirSampler: 2
+  SliceSampler: 2
+  Radius: 2.5
+  Intensity: 1
+  Power: 2.5
+  MultiBounce: 1
+  Sharpeness: 0.2
+  TemporalScale: 1.25
+  TemporalWeight: 0.99
+  AODeBug: 5
 --- !u!1001 &584076305
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -24816,47 +24820,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1853202973}
   m_PrefabAsset: {fileID: 0}
---- !u!28 &1859926241
-Texture2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  serializedVersion: 2
-  m_Width: 4
-  m_Height: 4
-  m_CompleteImageSize: 64
-  m_TextureFormat: 5
-  m_MipCount: 1
-  m_IsReadable: 1
-  m_IgnoreMasterTextureLimit: 0
-  m_StreamingMipmaps: 0
-  m_StreamingMipmapsPriority: 0
-  m_AlphaIsTransparency: 0
-  m_ImageCount: 1
-  m_TextureDimension: 2
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 0
-    m_WrapV: 0
-    m_WrapW: 0
-  m_LightmapFormat: 0
-  m_ColorSpace: 0
-  image data: 64
-  _typelessdata: ff127b4aff06c152ff2e7be1ffb0c382ff54c3a7ffd80d83ff47baebffecf5d9ff48a5f0fffe0c5eff9121fdff44121dffb9f493ff5215dcff870bfaff38dcb3
-  m_StreamData:
-    offset: 0
-    size: 0
-    path: 
 --- !u!1 &1860506692
 GameObject:
   m_ObjectHideFlags: 0

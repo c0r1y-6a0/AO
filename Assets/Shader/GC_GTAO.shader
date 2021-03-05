@@ -15,6 +15,7 @@
             #pragma multi_compile _RAW_IMG _ONLY_AO _WITH_AO
 
             #include "UnityCG.cginc"
+            #include "Filter.hlsl"
 
             struct appdata
             {
@@ -35,6 +36,11 @@
             int _marchingCount;
             int _scliceCount;
             float _radius;
+            float _SSAO_HalfProjScale;
+
+            float4x4 invproj;
+
+            #include "AO_Common.cginc"
 
             v2f vert (appdata v)
             {
@@ -42,26 +48,6 @@
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
                 return o;
-            }
-
-            void GetDepthNormal(float2 uv, out float depth, out float3 normal)
-            {
-                float4 depthnormal = tex2D(_CameraDepthNormalsTexture, uv);
-                DecodeDepthNormal(depthnormal, depth, normal);
-            }
-
-            float4x4 invproj;
-            float3 ReconstructViewPos(float2 uv, float linear01Depth)
-            {
-                float2 NDC = uv * 2 - 1;
-                float3 clipVec = float3(NDC.x, NDC.y, 1.0) * _ProjectionParams.z;
-                float3 viewVec = mul(invproj, clipVec.xyzz).xyz;
-                return viewVec * linear01Depth;
-            }
-
-            inline half Rand(half2 position)
-            {
-                return frac(frac(dot(position, half2( 0.06711056, 0.00583715))) * 52.9829189 );
             }
 
             float GetH(float3 fragViewPos, float fragDepth, float2 uv, float2 marchingDir, float3 viewDir)
@@ -99,44 +85,34 @@
                 return (v1 + v2) * 0.25;
             }
 
-            float2 rand(float2 value)
-            {
-                return frac(sin(value) * 15213.331);
-            }
-
-            float3 GetPosition(float2 uv)
-            {
-                float depth;
-                float3 normal;
-                GetDepthNormal(uv, depth, normal);
-                return ReconstructViewPos(uv, depth);
-            }
-
             half IntegrateArc_CosWeight(half2 h, half n)
             {
                 half2 Arc = -cos(2 * h - n) + cos(n) + 2 * h * sin(n);
                 return 0.25 * (Arc.x + Arc.y);
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            half IntegrateArc_UniformWeight(half2 h)
             {
-                fixed4 col = tex2D(_MainTex, i.uv);
+                half2 Arc = 1 - cos(h);
+                return Arc.x + Arc.y;
+            }
 
+            float3 GTAO(float2 uv)
+            {
                 float depth;
                 float3 normal;
-                GetDepthNormal(i.uv, depth, normal);
-                float3 viewPos = ReconstructViewPos(i.uv, depth);
+                GetDepthNormal(uv, depth, normal);
+                float3 viewPos = GetPosition(uv);
                 half3 viewDir = normalize(0 - viewPos);
-                half noiseDirection = Rand(i.uv * _CameraDepthNormalsTexture_TexelSize.zw);
+                half noiseDirection = Rand(uv * _CameraDepthNormalsTexture_TexelSize.zw);
 
-                float totalD = 0;
-                float2 h, H, uvOffset, h1h2, h1h2Length, falloff;
-                float4 uvSlice;
-                float h1, h2;
+	            half stepRadius = (max(min((_radius * _SSAO_HalfProjScale) / viewPos.z, 512), (half)_marchingCount)) / ((half)_marchingCount + 1);
+
+                float Occlusion = 0;
                 UNITY_LOOP
-                for(float j = 0 ; j < _scliceCount; j++)
+                for(float i = 0 ; i < _scliceCount; i++)
                 {
-                    float radian =  (UNITY_PI / _scliceCount ) * (j + 1 );//+ noiseDirection);
+                    float radian =  (UNITY_PI / _scliceCount ) * (i + noiseDirection);
                     float3 dir = float3(cos(radian) , sin(radian), 0);
                     float planeNormal = normalize(cross(dir, viewDir));
                     float planeTangent = cross(viewDir, planeNormal);
@@ -146,33 +122,22 @@
                     float cos_n = clamp(dot(normalize(sliceNormal), viewDir), -1, 1);
                     float n = -sign(dot(sliceNormal, planeTangent)) * acos(cos_n);
 
-                    /*
-                    float h1 = -GetH(viewPos, depth, i.uv, dir.xy, viewDir);
-                    float h2 = GetH(viewPos, depth, i.uv, -dir.xy, viewDir);
-
-                    h1 = n + max(h1 - n, -UNITY_HALF_PI);
-                    h2 = n + min(h2 - n, UNITY_HALF_PI);
-                    float ao = GetAO(h1, h2, n);
-                    totalD += sliceLength * ao;
-                    */
-
-                    h = -1;
-
+                    float2 h = -1;
                     UNITY_LOOP
                     for (int j = 0; j < _marchingCount; j++)
                     {
-                        uvOffset = (dir.xy * _CameraDepthNormalsTexture_TexelSize.xy) * (1 + j);
-                        uvSlice = i.uv.xyxy + float4(uvOffset.xy, -uvOffset);
+                        float2 uvOffset = (dir.xy * _CameraDepthNormalsTexture_TexelSize.xy) * (max(stepRadius * j, 1 + j));
+                        float4 uvSlice = uv.xyxy + float4(uvOffset.xy, -uvOffset);
 
-                        h1 = GetPosition(uvSlice.xy) - viewPos;
-                        h2 = GetPosition(uvSlice.zw) - viewPos;
+                        float3 h1 = GetPosition(uvSlice.xy) - viewPos;
+                        float3 h2 = GetPosition(uvSlice.zw) - viewPos;
 
-                        h1h2 = half2(dot(h1, h1), dot(h2, h2));
-                        h1h2Length = rsqrt(h1h2);
+                        float2 h1h2 = float2(dot(h1, h1), dot(h2, h2));
+                        float2 h1h2Length = rsqrt(h1h2);
 
-                        falloff = saturate(h1h2 * (2 / (_radius * _radius)));
+                        float2 falloff = saturate(h1h2 * (2 / (_radius * _radius)));
 
-                        H = half2(dot(h1, viewDir), dot(h2, viewDir)) * h1h2Length;
+                        float2 H = half2(dot(h1, viewDir), dot(h2, viewDir)) * h1h2Length;
                         h.xy = (H.xy > h.xy) ? lerp(H, h, falloff) : h.xy;
                     }
 
@@ -180,17 +145,26 @@
                     h.x = n + max(-h.x - n, -UNITY_HALF_PI);
                     h.y = n + min(h.y - n, UNITY_HALF_PI);
 
-                    totalD += sliceLength * IntegrateArc_CosWeight(h, n); 			
+                    //Occlusion += sliceLength * IntegrateArc_CosWeight(h, n); 			
+                    Occlusion += sliceLength * IntegrateArc_UniformWeight(h); 			
                 }
-                //totalD /=  _scliceCount;
-                totalD = pow(totalD / _scliceCount, 2);
+                //Occlusion /=  _scliceCount;
+                Occlusion = pow(Occlusion / _scliceCount, 2);
+                return Occlusion;
+            }
+
+
+            fixed4 frag (v2f i) : SV_Target
+            {
+                fixed4 col = tex2D(_MainTex, i.uv);
+                float Occlusion = GTAO(i.uv);
 
                 #ifdef _RAW_IMG
                     return col;
                 #elif _ONLY_AO
-                    return totalD;
+                    return Occlusion;
                 #elif _WITH_AO
-                    return col * totalD;
+                    return col * Occlusion;
                 #endif
             }
             ENDCG

@@ -182,7 +182,8 @@ public class GroundTruthOcclusion : MonoBehaviour {
 
     void OnEnable()
     {
-        RenderCamera.AddCommandBuffer(CameraEvent.BeforeLighting, GTAOBuffer);
+        RenderCamera.AddCommandBuffer(CameraEvent.BeforeImageEffects, GTAOBuffer);
+        RenderCamera.depthTextureMode = DepthTextureMode.DepthNormals;
     }
 
     void OnPreRender()
@@ -199,7 +200,7 @@ public class GroundTruthOcclusion : MonoBehaviour {
     void OnDisable()
     {
         if (GTAOBuffer != null) {
-            RenderCamera.RemoveCommandBuffer(CameraEvent.BeforeLighting, GTAOBuffer);
+            RenderCamera.RemoveCommandBuffer(CameraEvent.BeforeImageEffects, GTAOBuffer);
         }
     }
 
@@ -279,7 +280,7 @@ public class GroundTruthOcclusion : MonoBehaviour {
 
             ////////////SceneColor RT
             RenderTexture.ReleaseTemporary(SSAO_SceneColor_RT);
-            SSAO_SceneColor_RT = RenderTexture.GetTemporary(RenderCamera.pixelWidth, RenderCamera.pixelHeight, 0, RenderTextureFormat.DefaultHDR); SSAO_SceneColor_RT.filterMode = FilterMode.Bilinear;
+            SSAO_SceneColor_RT = RenderTexture.GetTemporary(RenderCamera.pixelWidth, RenderCamera.pixelHeight, 0, RenderTextureFormat.Default); SSAO_SceneColor_RT.filterMode = FilterMode.Bilinear;
 
             ////////////Occlusion RT
             RenderTexture.ReleaseTemporary(SSAO_Occlusion_RT);
@@ -301,7 +302,7 @@ public class GroundTruthOcclusion : MonoBehaviour {
 
             ////////////Combine RT
             RenderTexture.ReleaseTemporary(SSAO_CombineScene_RT);
-            SSAO_CombineScene_RT = RenderTexture.GetTemporary(RenderCamera.pixelWidth, RenderCamera.pixelHeight, 0, RenderTextureFormat.DefaultHDR);
+            SSAO_CombineScene_RT = RenderTexture.GetTemporary(RenderCamera.pixelWidth, RenderCamera.pixelHeight, 0, RenderTextureFormat.Default);
         }
     }
 

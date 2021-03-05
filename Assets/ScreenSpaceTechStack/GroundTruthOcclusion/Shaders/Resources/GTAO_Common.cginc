@@ -53,6 +53,15 @@ PixelInput vert(VertexInput v)
 	return o;
 }
 
+sampler2D _CameraDepthNormalsTexture;
+inline half3 GetPositionAndNormal(half2 uv, inout half3 normal)
+{
+	float viewDepth;
+    float4 depthnormal = tex2Dlod(_CameraDepthNormalsTexture, float4(uv, 0, 0));
+    DecodeDepthNormal(depthnormal, viewDepth, normal);
+    return half3( (uv * _SSAO_UVToView.xy + _SSAO_UVToView.zw) * viewDepth, viewDepth );
+}
+
 inline half3 GetPosition(half2 uv)
 {
 	half depth = tex2Dlod(_CameraDepthTexture, float4(uv, 0, 0)).r;
@@ -222,10 +231,11 @@ half IntegrateArc_CosWeight(half2 h, half n)
     return 0.25 * (Arc.x + Arc.y);
 }
 
+
 half4 GTAO(half2 uv, int NumCircle, int NumSlice, inout half Depth)
 {
-	half3 vPos = GetPosition(uv);
-	half3 viewNormal = GetNormal(uv);
+	half3 viewNormal;
+	half3 vPos = GetPositionAndNormal(uv, viewNormal);
 	half3 viewDir = normalize(0 - vPos);
 
 	half2 radius_thickness = lerp(half2(_SSAO_Radius, 1), _SSAO_FadeValues.yw, ComputeDistanceFade(vPos.b).xx);
@@ -264,8 +274,9 @@ half4 GTAO(half2 uv, int NumCircle, int NumSlice, inout half Depth)
 			uvOffset = (sliceDir.xy * _SSAO_TexelSize.xy) * max(stepRadius * (j + noiseOffset), 1 + j);
 			uvSlice = uv.xyxy + float4(uvOffset.xy, -uvOffset);
 
-			h1 = GetPosition(uvSlice.xy) - vPos;
-			h2 = GetPosition(uvSlice.zw) - vPos;
+			half3 _;
+			h1 = GetPositionAndNormal(uvSlice.xy, _) - vPos;
+			h2 = GetPositionAndNormal(uvSlice.zw, _) - vPos;
 
 			h1h2 = half2(dot(h1, h1), dot(h2, h2));
 			h1h2Length = rsqrt(h1h2);
